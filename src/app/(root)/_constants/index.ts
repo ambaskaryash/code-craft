@@ -340,38 +340,196 @@ print("Sum of numbers: \\(sum)")`,
     logoPath: "/sql.png",
     pistonRuntime: { language: "sqlite3", version: "3.36.0" },
     monacoLanguage: "sql",
-    defaultCode: `-- SQL Playground with SQLite
--- Create a sample table
+    defaultCode: `-- SQL Playground with E-Commerce Database
+-- Creating comprehensive database with related tables
+
+-- Customers Table
+CREATE TABLE IF NOT EXISTS customers (
+    customer_id INTEGER PRIMARY KEY,
+    company_name TEXT NOT NULL,
+    contact_name TEXT NOT NULL,
+    contact_title TEXT,
+    address TEXT,
+    city TEXT,
+    postal_code TEXT,
+    country TEXT,
+    phone TEXT,
+    email TEXT
+);
+
+-- Suppliers Table
+CREATE TABLE IF NOT EXISTS suppliers (
+    supplier_id INTEGER PRIMARY KEY,
+    company_name TEXT NOT NULL,
+    contact_name TEXT,
+    contact_title TEXT,
+    address TEXT,
+    city TEXT,
+    postal_code TEXT,
+    country TEXT,
+    phone TEXT,
+    homepage TEXT
+);
+
+-- Products Table
+CREATE TABLE IF NOT EXISTS products (
+    product_id INTEGER PRIMARY KEY,
+    product_name TEXT NOT NULL,
+    supplier_id INTEGER,
+    category_name TEXT,
+    unit_price DECIMAL(10,2),
+    units_in_stock INTEGER,
+    units_on_order INTEGER,
+    reorder_level INTEGER,
+    discontinued INTEGER DEFAULT 0,
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id)
+);
+
+-- Employees Table
 CREATE TABLE IF NOT EXISTS employees (
-  id INTEGER PRIMARY KEY,
-  name TEXT NOT NULL,
-  department TEXT NOT NULL,
-  salary INTEGER NOT NULL,
-  hire_date DATE NOT NULL
+    employee_id INTEGER PRIMARY KEY,
+    last_name TEXT NOT NULL,
+    first_name TEXT NOT NULL,
+    title TEXT,
+    title_of_courtesy TEXT,
+    birth_date DATE,
+    hire_date DATE,
+    address TEXT,
+    city TEXT,
+    postal_code TEXT,
+    country TEXT,
+    home_phone TEXT,
+    extension TEXT,
+    reports_to INTEGER,
+    salary DECIMAL(10,2),
+    FOREIGN KEY (reports_to) REFERENCES employees(employee_id)
+);
+
+-- Orders Table
+CREATE TABLE IF NOT EXISTS orders (
+    order_id INTEGER PRIMARY KEY,
+    customer_id INTEGER,
+    employee_id INTEGER,
+    order_date DATE,
+    required_date DATE,
+    shipped_date DATE,
+    ship_via INTEGER,
+    freight DECIMAL(10,2),
+    ship_name TEXT,
+    ship_address TEXT,
+    ship_city TEXT,
+    ship_postal_code TEXT,
+    ship_country TEXT,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
+);
+
+-- Order Details Table
+CREATE TABLE IF NOT EXISTS order_details (
+    order_id INTEGER,
+    product_id INTEGER,
+    unit_price DECIMAL(10,2),
+    quantity INTEGER,
+    discount DECIMAL(4,2) DEFAULT 0,
+    PRIMARY KEY (order_id, product_id),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
 );
 
 -- Insert sample data
+-- Customers
+INSERT OR REPLACE INTO customers VALUES 
+(1, 'Alfreds Futterkiste', 'Maria Anders', 'Sales Representative', 'Obere Str. 57', 'Berlin', '12209', 'Germany', '030-0074321', 'maria@alfreds.com'),
+(2, 'Ana Trujillo Emparedados', 'Ana Trujillo', 'Owner', 'Avda. de la Constitución 2222', 'México D.F.', '05021', 'Mexico', '(5) 555-4729', 'ana@trujillo.com'),
+(3, 'Antonio Moreno Taquería', 'Antonio Moreno', 'Owner', 'Mataderos 2312', 'México D.F.', '05023', 'Mexico', '(5) 555-3932', 'antonio@moreno.com'),
+(4, 'Around the Horn', 'Thomas Hardy', 'Sales Representative', '120 Hanover Sq.', 'London', 'WA1 1DP', 'UK', '(171) 555-7788', 'thomas@aroundhorn.com'),
+(5, 'Berglunds snabbköp', 'Christina Berglund', 'Order Administrator', 'Berguvsvägen 8', 'Luleå', 'S-958 22', 'Sweden', '0921-12 34 65', 'christina@berglunds.com');
+
+-- Suppliers
+INSERT OR REPLACE INTO suppliers VALUES 
+(1, 'Exotic Liquids', 'Charlotte Cooper', 'Purchasing Manager', '49 Gilbert St.', 'London', 'EC1 4SD', 'UK', '(171) 555-2222', 'www.exoticliquids.com'),
+(2, 'New Orleans Cajun Delights', 'Shelley Burke', 'Order Administrator', 'P.O. Box 78934', 'New Orleans', '70117', 'USA', '(100) 555-4822', 'www.cajundelights.com'),
+(3, 'Grandma Kellys Homestead', 'Regina Murphy', 'Sales Representative', '707 Oxford Rd.', 'Ann Arbor', '48104', 'USA', '(313) 555-5735', 'www.grandmakellys.com'),
+(4, 'Tokyo Traders', 'Yoshi Nagase', 'Marketing Manager', '9-8 Sekimai Musashino-shi', 'Tokyo', '100', 'Japan', '(03) 3555-5011', 'www.tokyotraders.com');
+
+-- Products
+INSERT OR REPLACE INTO products VALUES 
+(1, 'Chai', 1, 'Beverages', 18.00, 39, 0, 10, 0),
+(2, 'Chang', 1, 'Beverages', 19.00, 17, 40, 25, 0),
+(3, 'Aniseed Syrup', 1, 'Condiments', 10.00, 13, 70, 25, 0),
+(4, 'Chef Antons Cajun Seasoning', 2, 'Condiments', 22.00, 53, 0, 0, 0),
+(5, 'Chef Antons Gumbo Mix', 2, 'Condiments', 21.35, 0, 0, 0, 1),
+(6, 'Grandmas Boysenberry Spread', 3, 'Condiments', 25.00, 120, 0, 25, 0),
+(7, 'Uncle Bobs Organic Dried Pears', 3, 'Produce', 30.00, 15, 0, 10, 0),
+(8, 'Northwoods Cranberry Sauce', 3, 'Condiments', 40.00, 6, 0, 0, 0),
+(9, 'Mishi Kobe Niku', 4, 'Meat/Poultry', 97.00, 29, 0, 0, 1),
+(10, 'Ikura', 4, 'Seafood', 31.00, 31, 0, 0, 0);
+
+-- Employees
 INSERT OR REPLACE INTO employees VALUES 
-  (1, 'Alice Johnson', 'Engineering', 75000, '2022-01-15'),
-  (2, 'Bob Smith', 'Marketing', 65000, '2022-03-20'),
-  (3, 'Carol Davis', 'Engineering', 80000, '2021-11-10'),
-  (4, 'David Wilson', 'Sales', 55000, '2023-02-05'),
-  (5, 'Eva Brown', 'Engineering', 78000, '2022-07-12');
+(1, 'Davolio', 'Nancy', 'Sales Representative', 'Ms.', '1948-12-08', '1992-05-01', '507 - 20th Ave. E.', 'Seattle', '98122', 'USA', '(206) 555-9857', '5467', NULL, 65000),
+(2, 'Fuller', 'Andrew', 'Vice President, Sales', 'Dr.', '1952-02-19', '1992-08-14', '908 W. Capital Way', 'Tacoma', '98401', 'USA', '(206) 555-9482', '3457', NULL, 95000),
+(3, 'Leverling', 'Janet', 'Sales Representative', 'Ms.', '1963-08-30', '1992-04-01', '722 Moss Bay Blvd.', 'Kirkland', '98033', 'USA', '(206) 555-3412', '3355', 2, 58000),
+(4, 'Peacock', 'Margaret', 'Sales Representative', 'Mrs.', '1937-09-19', '1993-05-03', '4110 Old Redmond Rd.', 'Redmond', '98052', 'USA', '(206) 555-8122', '5176', 2, 62000),
+(5, 'Buchanan', 'Steven', 'Sales Manager', 'Mr.', '1955-03-04', '1993-10-17', '14 Garrett Hill', 'London', 'SW1 8JR', 'UK', '(71) 555-4848', '3453', 2, 75000);
 
--- Query examples
-SELECT 'All employees:' as query_type;
-SELECT * FROM employees;
+-- Orders
+INSERT OR REPLACE INTO orders VALUES 
+(10248, 1, 5, '1996-07-04', '1996-08-01', '1996-07-16', 3, 32.38, 'Alfreds Futterkiste', 'Obere Str. 57', 'Berlin', '12209', 'Germany'),
+(10249, 2, 6, '1996-07-05', '1996-08-16', '1996-07-10', 1, 11.61, 'Ana Trujillo Emparedados', 'Avda. de la Constitución 2222', 'México D.F.', '05021', 'Mexico'),
+(10250, 3, 4, '1996-07-08', '1996-08-05', '1996-07-12', 2, 65.83, 'Antonio Moreno Taquería', 'Mataderos 2312', 'México D.F.', '05023', 'Mexico'),
+(10251, 1, 3, '1996-07-08', '1996-08-05', '1996-07-15', 1, 41.34, 'Alfreds Futterkiste', 'Obere Str. 57', 'Berlin', '12209', 'Germany'),
+(10252, 4, 4, '1996-07-09', '1996-08-06', '1996-07-11', 2, 51.30, 'Around the Horn', '120 Hanover Sq.', 'London', 'WA1 1DP', 'UK');
 
-SELECT '\nEngineering department:' as query_type;
-SELECT name, salary FROM employees 
-WHERE department = 'Engineering'
-ORDER BY salary DESC;
+-- Order Details
+INSERT OR REPLACE INTO order_details VALUES 
+(10248, 1, 18.00, 12, 0.00),
+(10248, 2, 19.00, 10, 0.00),
+(10248, 3, 10.00, 5, 0.00),
+(10249, 4, 22.00, 9, 0.00),
+(10249, 6, 25.00, 40, 0.00),
+(10250, 1, 18.00, 10, 0.15),
+(10250, 6, 25.00, 35, 0.15),
+(10250, 7, 30.00, 15, 0.15),
+(10251, 1, 18.00, 6, 0.05),
+(10251, 8, 40.00, 15, 0.05),
+(10252, 9, 97.00, 2, 0.00),
+(10252, 10, 31.00, 30, 0.00);
 
-SELECT '\nAverage salary by department:' as query_type;
-SELECT department, AVG(salary) as avg_salary, COUNT(*) as employee_count
-FROM employees 
-GROUP BY department
-ORDER BY avg_salary DESC;`,
+-- Sample queries to demonstrate the database
+SELECT 'Database Overview:' as info;
+SELECT 
+    (SELECT COUNT(*) FROM customers) as total_customers,
+    (SELECT COUNT(*) FROM products) as total_products,
+    (SELECT COUNT(*) FROM orders) as total_orders,
+    (SELECT COUNT(*) FROM employees) as total_employees;
+
+SELECT '\nTop 3 Most Expensive Products:' as info;
+SELECT product_name, unit_price, category_name 
+FROM products 
+ORDER BY unit_price DESC 
+LIMIT 3;
+
+SELECT '\nOrder Summary with Customer Details:' as info;
+SELECT 
+    o.order_id,
+    c.company_name,
+    o.order_date,
+    PRINTF('$%.2f', o.freight) as freight_cost
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+ORDER BY o.order_date
+LIMIT 5;
+
+SELECT '\nEmployee Sales Performance:' as info;
+SELECT 
+    e.first_name || ' ' || e.last_name as employee_name,
+    e.title,
+    COUNT(o.order_id) as total_orders
+FROM employees e
+LEFT JOIN orders o ON e.employee_id = o.employee_id
+GROUP BY e.employee_id, e.first_name, e.last_name, e.title
+ORDER BY total_orders DESC;`,
   },
   bash: {
     id: "bash",
