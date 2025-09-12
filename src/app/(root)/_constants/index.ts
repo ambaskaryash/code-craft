@@ -373,6 +373,57 @@ FROM employees
 GROUP BY department
 ORDER BY avg_salary DESC;`,
   },
+  bash: {
+    id: "bash",
+    label: "Bash",
+    logoPath: "/bash.png",
+    pistonRuntime: { language: "bash", version: "5.2.0" },
+    monacoLanguage: "shell",
+    defaultCode: `#!/bin/bash
+# Bash Playground
+
+# Variables
+name="World"
+numbers=(1 2 3 4 5)
+
+# Basic output
+echo "Hello, $name!"
+echo "Current date: $(date)"
+echo "Current directory: $(pwd)"
+
+# Array operations
+echo "\nOriginal numbers: ${numbers[@]}"
+
+# Calculate squares
+squares=()
+for num in "${numbers[@]}"; do
+    square=$((num * num))
+    squares+=("$square")
+done
+echo "Squared numbers: ${squares[@]}"
+
+# Filter even numbers
+even_numbers=()
+for num in "${numbers[@]}"; do
+    if (( num % 2 == 0 )); then
+        even_numbers+=("$num")
+    fi
+done
+echo "Even numbers: ${even_numbers[@]}"
+
+# Calculate sum
+sum=0
+for num in "${numbers[@]}"; do
+    sum=$((sum + num))
+done
+echo "Sum of numbers: $sum"
+
+# System information
+echo "\nSystem Info:"
+echo "Username: $USER"
+echo "Shell: $SHELL"
+echo "Bash version: $BASH_VERSION"`,
+  },
 };
 
 export const THEMES: Theme[] = [
